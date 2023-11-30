@@ -2,14 +2,53 @@
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '../stores/auth'
   import { ref } from 'vue'
+  import axios from 'axios'
+  import Swal from 'sweetalert2'
 
   const auth = useAuthStore()
   const username = ref('')
+  const password = ref('')
   const router = useRouter()
 
-  const handleLogin = () => {
-    auth.login(username.value)
-    router.push('/')
+  const handleLogin = async () => {
+    const response = await axios({
+      method: "post",
+      url: "http://localhost:3000/login",
+      data: {
+        username: username.value,
+        password: password.value
+      }
+    })
+
+    if (response.data.status === "success") {
+      Swal.fire({
+        title: 'Success!',
+        text: 'Welcome!',
+        icon: 'success',
+        confirmButtonText: 'Cool'
+      })
+      auth.login(username.value)
+      router.push("/")
+    }
+
+    if (response.data.status === "error, username not found") {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Incorrect username!',
+        icon: 'error',
+        confirmButtonText: 'Try Again'
+      })
+    }
+
+    if (response.data.status === "error, wrong password") {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Incorrect password!',
+        icon: 'error',
+        confirmButtonText: 'Try Again'
+      })
+    }
+    console.log(response)
   }
 </script>
 
